@@ -1,0 +1,106 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+## Loading and preprocessing the data
+
+```{r, echo = TRUE}
+Data <- read.csv("activity.csv")
+head(Data)
+```
+
+
+## What is mean total number of steps taken per day?
+
+### 1.Make a histogram of the total number of steps taken each day
+```{r, echo = TRUE}
+Date <- unique(Data$date)
+
+Total_Number <- matrix(0, 1, length(Date))
+
+for (i in 1:length(Date))
+  Total_Number[i] <- sum(Data$steps[Data$date == Date[i]], na.rm = TRUE)
+
+barplot(Total_Number, ylab = "Total Steps", xlab = "Date")
+```
+
+### 2.Calculate and report the mean and median total number of steps taken per day
+```{r, echo = TRUE}
+mean <- mean(Total_Number, na.rm = TRUE)
+median <- median(Total_Number, na.rm = TRUE)
+mean
+median
+```
+
+
+## What is the average daily activity pattern?
+### 1.Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+
+```{r, echo = TRUE}
+plot(Data$steps, type = "l", xlab = "The time interval", ylab = "Number of steps")
+```
+
+```{r, echo = TRUE}
+average <- matrix(0, 1, length(Date))
+
+for (i in 1:length(Date))
+  average[i] <- mean(Data$steps[Data$date == Date[i]], na.rm = TRUE)
+average[is.na(average)] = 0
+plot(average[1,], type = "b", xlab = "Days", ylab = "Average steps")
+```
+
+### 2.Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r, echo = TRUE}
+days <- Data$date[Data$steps == max(Data$steps, na.rm = TRUE)]
+minutes <- Data$interval[Data$steps == max(Data$steps, na.rm = TRUE)]
+days[!is.na(days)]
+minutes[!is.na(minutes)]
+```
+
+## Imputing missing values
+
+### 1.Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+
+```{r, echo = TRUE}
+number <- length(Data$steps[is.na(Data$steps)])
+number
+```
+
+### 2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+I will use the mean of the next day.
+
+### 3.Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+```{r, echo = TRUE}
+
+for (i in 1:length(Date)){
+  temp <- (Data$date == Date[i]) & is.na(Data$steps)
+  Data$steps[temp] <- mean(Data$steps[Data$date == Date[i+1]], na.rm = TRUE)
+  }
+```
+
+### 4.Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```{r, echo = TRUE}
+Total_Number1 <- matrix(0, 1, length(Date))
+
+for (i in 1:length(Date))
+  Total_Number1[i] <- sum(Data$steps[Data$date == Date[i]], na.rm = TRUE)
+
+barplot(Total_Number1, ylab = "Total Steps", xlab = "Date")
+```
+
+```{r, echo = TRUE}
+mean <- mean(Total_Number1, na.rm = TRUE)
+median <- median(Total_Number1, na.rm = TRUE)
+mean
+median
+```
+## Are there differences in activity patterns between weekdays and weekends?
+Yes
+
